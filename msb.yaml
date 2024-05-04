@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: msb-deployment
+  labels:
+    app: msb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: msb
+  template:
+    metadata:
+      labels:
+        app: msb
+    spec:
+      containers:
+      - name: msb
+        image: haythemkaouech/msb:final1
+        ports:
+        - containerPort: 8081
+        env:
+        - name: SERVICEA_URL
+          value: msa-service:8080
+        - name: KAFKA_GROUP_ID
+          value: group_id_MS_B 
+        - name: PORT
+          value: "8081"
+        - name: KAFKA_URL
+          value: kafka-service:9092
+
+--- #multiple yaml configuration within 1 file
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: msb-service
+spec:
+  type: NodePort
+  selector:
+    app: msb
+  ports:
+    - protocol: TCP
+      port: 8081 #l service accessible fel cluster bl @ip te3ou w bl port tajjm t7otnfs l port maa l container kima tajjm lee
+      targetPort: 8081 #container port ya3ni l port mta3 l pods that belongs to the service
+      nodePort: 30101
+      name: main
+    - protocol: TCP
+      port: 9090 #l service accessible fel cluster bl @ip te3ou w bl port tajjm t7otnfs l port maa l container kima tajjm lee
+      targetPort: 9090 #container port ya3ni l port mta3 l pods that belongs to the service
+      name: prom
